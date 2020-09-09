@@ -6,7 +6,7 @@ const config: SequelizeModuleOptions = {
   dialect: 'postgres',
   host: helpers.loadEnvOrError('DB_HOST'),
   port: helpers.loadEnvOrError('DB_PORT', true),
-  logging: process.env.NODE_ENV === 'development',
+  logging: process.env.NODE_ENV === 'production' ? false : console.log,
   native: true,
   pool: {
     max: 5,
