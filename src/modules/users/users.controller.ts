@@ -1,7 +1,20 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import * as validator from 'class-validator';
+
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Patch,
+  Post,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { UsersCreateDto } from 'src/modules/users/dto/users.create.dto';
 import { UsersLoginDto } from 'src/modules/users/dto/users.login.dto';
+import { UsersUpdatePasswordDto } from 'src/modules/users/dto/users.update-password.dto';
 
 import { User } from 'src/modules/users/entities/user.entity';
 
@@ -20,5 +33,16 @@ export class UsersController {
   @HttpCode(200)
   async login(@Body() dto: UsersLoginDto): Promise<string> {
     return this.usersService.login(dto);
+  }
+
+  @Patch('/@me/password')
+  @UseGuards(AuthGuard('user-from-jwt'))
+  async updatePassword(@Body() dto: UsersUpdatePasswordDto, @Req() req: any): Promise<void> {
+    if (validator.isDefined(dto.userId)) {
+      throw new UnauthorizedException();
+    }
+    dto.userId = req.user.id;
+
+    return this.usersService.updatePassword(dto);
   }
 }

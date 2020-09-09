@@ -1,6 +1,8 @@
 enum ServerErrorType {
   GIVEN_INPUT_IS_INVALID,
+  RECORD_IS_MISSING,
 
+  USER_CURRENT_PASSWORD_CONFIRMATION_DOES_NOT_MATCH,
   USER_EMAIL_IS_ALREADY_IN_USE,
   USER_PASSWORD_CONFIRMATION_DOES_NOT_MATCH,
   USER_TRIED_TO_LOGIN_WITH_WRONG_CREDENTIALS,
@@ -23,7 +25,15 @@ class ServerError extends Error {
         this.message += `${args[0]}`;
         break;
       }
+      case ServerErrorType.RECORD_IS_MISSING: {
+        this.message += `There aren't any records with given information.`;
+        break;
+      }
 
+      case ServerErrorType.USER_CURRENT_PASSWORD_CONFIRMATION_DOES_NOT_MATCH: {
+        this.message += `Given password does not match with your current password.`;
+        break;
+      }
       case ServerErrorType.USER_EMAIL_IS_ALREADY_IN_USE: {
         this.message += `'${args[0]}' is already in use.`;
         break;

@@ -11,6 +11,7 @@ import { ServerError, ServerErrorType } from 'src/shared/configs/errors.config';
 
 import { UsersCreateDto } from 'src/modules/users/dto/users.create.dto';
 import { UsersLoginDto } from 'src/modules/users/dto/users.login.dto';
+import { UsersUpdatePasswordDto } from 'src/modules/users/dto/users.update-password.dto';
 
 import { User } from 'src/modules/users/entities/user.entity';
 
@@ -82,5 +83,27 @@ export class UsersService {
       id: user.id,
     };
     return this.jwtService.signAsync(payload);
+  }
+
+  async updatePassword(dto: UsersUpdatePasswordDto): Promise<void> {
+    if (dto.newPassword !== dto.newPasswordConfirmation) {
+      throw new ServerError(ServerErrorType.USER_PASSWORD_CONFIRMATION_DOES_NOT_MATCH);
+    }
+
+    const user = await this.model.findOne({
+      where: { id: dto.userId },
+      attributes: ['id', 'password'],
+    });
+
+    if (!validator.isDefined(user)) {
+      throw new ServerError(ServerErrorType.RECORD_IS_MISSING);
+    }
+
+    if ((await argon2.verify(user.password, dto.currentPassword)) === false) {
+      throw new ServerError(ServerErrorType.USER_CURRENT_PASSWORD_CONFIRMATION_DOES_NOT_MATCH);
+    }
+
+    user.password = await argon2.hash(dto.newPassword);
+    await user.save();
   }
 }
