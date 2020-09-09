@@ -3,6 +3,8 @@ import { NestFactory } from '@nestjs/core';
 
 import envConfig from 'src/shared/configs/env.config';
 
+import { GlobalExceptionFilter } from 'src/shared/filters/exception.filter';
+
 import { AppModule } from 'src/app.module';
 
 (async () => {
@@ -17,6 +19,7 @@ import { AppModule } from 'src/app.module';
   });
 
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, fastify);
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
   await app.listen(envConfig.port, process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1');
 })();
