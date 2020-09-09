@@ -1,6 +1,8 @@
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { NestFactory } from '@nestjs/core';
 
+import envConfig from 'src/shared/configs/env.config';
+
 import { AppModule } from 'src/app.module';
 
 (async () => {
@@ -16,5 +18,5 @@ import { AppModule } from 'src/app.module';
 
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, fastify);
 
-  await app.listen(3000, process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1');
+  await app.listen(envConfig.port, process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1');
 })();
