@@ -4,6 +4,10 @@
 
 ## Project Installation Guide
 
+### Environment files
+
+Environment file can be found in [this](https://gist.github.com/borabaloglu/6cdd920b3da3038c7e4053e6fddc0c5e) gist. This file must be added to root of the project with the file name `.dev.env`. Without this file, the project cannot be run.
+
 ### PostgreSQL
 
 #### Installation
