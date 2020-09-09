@@ -1,4 +1,5 @@
 import * as argon2 from 'argon2';
+import * as validator from 'class-validator';
 
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -9,6 +10,7 @@ import { UserAuthenticationPayload } from 'src/shared/authentications/user/user.
 import { ServerError, ServerErrorType } from 'src/shared/configs/errors.config';
 
 import { UsersCreateDto } from 'src/modules/users/dto/users.create.dto';
+import { UsersLoginDto } from 'src/modules/users/dto/users.login.dto';
 
 import { User } from 'src/modules/users/entities/user.entity';
 
@@ -57,5 +59,28 @@ export class UsersService {
       user: entity,
       token,
     };
+  }
+
+  async login(dto: UsersLoginDto): Promise<string> {
+    const user = await this.model.findOne({
+      where: { email: dto.email },
+      attributes: ['id', 'email', 'password', 'lastLoginDate'],
+    });
+
+    if (!validator.isDefined(user)) {
+      throw new ServerError(ServerErrorType.USER_TRIED_TO_LOGIN_WITH_WRONG_CREDENTIALS);
+    }
+
+    if ((await argon2.verify(user.password, dto.password)) === false) {
+      throw new ServerError(ServerErrorType.USER_TRIED_TO_LOGIN_WITH_WRONG_CREDENTIALS);
+    }
+
+    user.lastLoginDate = new Date();
+    await user.save();
+
+    const payload: UserAuthenticationPayload = {
+      id: user.id,
+    };
+    return this.jwtService.signAsync(payload);
   }
 }

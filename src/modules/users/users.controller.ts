@@ -1,6 +1,7 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 
 import { UsersCreateDto } from 'src/modules/users/dto/users.create.dto';
+import { UsersLoginDto } from 'src/modules/users/dto/users.login.dto';
 
 import { User } from 'src/modules/users/entities/user.entity';
 
@@ -13,5 +14,11 @@ export class UsersController {
   @Post('/')
   async create(@Body() dto: UsersCreateDto): Promise<{ user: User; token: string }> {
     return this.usersService.create(dto);
+  }
+
+  @Post('/login')
+  @HttpCode(200)
+  async login(@Body() dto: UsersLoginDto): Promise<string> {
+    return this.usersService.login(dto);
   }
 }
