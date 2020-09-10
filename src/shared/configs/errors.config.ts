@@ -2,6 +2,9 @@ enum ServerErrorType {
   GIVEN_INPUT_IS_INVALID,
   RECORD_IS_MISSING,
 
+  FILE_MEDIA_TYPE_IS_UNEXPECTED,
+  FILE_MEDIA_TYPE_IS_UNSUPPORTED,
+
   USER_CURRENT_PASSWORD_CONFIRMATION_DOES_NOT_MATCH,
   USER_EMAIL_IS_ALREADY_IN_USE,
   USER_PASSWORD_CONFIRMATION_DOES_NOT_MATCH,
@@ -27,6 +30,16 @@ class ServerError extends Error {
       }
       case ServerErrorType.RECORD_IS_MISSING: {
         this.message += `There aren't any records with given information.`;
+        break;
+      }
+
+      case ServerErrorType.FILE_MEDIA_TYPE_IS_UNEXPECTED: {
+        this.message += `${args[0]} was expected, but '${args[1]}' is received.`;
+        break;
+      }
+      case ServerErrorType.FILE_MEDIA_TYPE_IS_UNSUPPORTED: {
+        this.message += `'${args[0]}' is not supported.`;
+        this.statusCode = 415;
         break;
       }
 
