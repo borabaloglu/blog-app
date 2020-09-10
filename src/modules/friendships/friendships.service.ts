@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { ServerError, ServerErrorType } from 'src/shared/configs/errors.config';
 
 import { FriendshipsFollowDto } from 'src/modules/friendships/dto/friendships.follow.dto';
+import { FriendshipsUnfollowDto } from 'src/modules/friendships/dto/friendships.unfollow.dto';
 
 import { Friendship } from 'src/modules/friendships/entities/friendship.entity';
 
@@ -29,6 +30,19 @@ export class FriendshipsService {
         throw new ServerError(ServerErrorType.FRIENDSHIP_ALREADY_FOLLOWING);
       }
       throw error;
+    }
+  }
+
+  async unfollow(dto: FriendshipsUnfollowDto): Promise<void> {
+    const result = await this.model.destroy({
+      where: {
+        followerId: dto.followerId,
+        followingId: dto.followingId,
+      },
+    });
+
+    if (result !== 1) {
+      throw new ServerError(ServerErrorType.RECORD_IS_MISSING);
     }
   }
 }

@@ -1,9 +1,18 @@
 import * as validator from 'class-validator';
 
-import { Controller, Param, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Param,
+  Post,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
 import { FriendshipsFollowDto } from 'src/modules/friendships/dto/friendships.follow.dto';
+import { FriendshipsUnfollowDto } from 'src/modules/friendships/dto/friendships.unfollow.dto';
 
 import { Friendship } from 'src/modules/friendships/entities/friendship.entity';
 
@@ -22,5 +31,16 @@ export class FriendshipsController {
     dto.followerId = req.user.id;
 
     return this.friendshipsService.follow(dto);
+  }
+
+  @Delete('/:followingId')
+  @UseGuards(AuthGuard('user-from-jwt'))
+  async unfollow(@Param() dto: FriendshipsUnfollowDto, @Req() req: any): Promise<void> {
+    if (validator.isDefined(dto.followerId)) {
+      throw new UnauthorizedException();
+    }
+    dto.followerId = req.user.id;
+
+    return this.friendshipsService.unfollow(dto);
   }
 }
