@@ -13,7 +13,7 @@ import { FriendshipsService } from 'src/modules/friendships/friendships.service'
 export class FriendshipsController {
   constructor(private readonly friendshipsService: FriendshipsService) {}
 
-  @Post('/follow/:followingId')
+  @Post('/:followingId')
   @UseGuards(AuthGuard('user-from-jwt'))
   async follow(@Param() dto: FriendshipsFollowDto, @Req() req: any): Promise<Friendship> {
     if (validator.isDefined(dto.followerId)) {
