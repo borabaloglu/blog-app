@@ -1,3 +1,8 @@
+import * as fileUploader from 'fastify-file-upload';
+import * as path from 'path';
+
+import fastifyStatic from 'fastify-static';
+
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
@@ -19,6 +24,11 @@ import { AppModule } from 'src/app.module';
       prettyPrint:
         process.env.NODE_ENV === 'production' ? false : { translateTime: true, levelFirst: true },
     } as any,
+  });
+
+  fastify.register(fileUploader);
+  fastify.register(fastifyStatic, {
+    root: path.join(__dirname, '..', 'public'),
   });
 
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, fastify);
