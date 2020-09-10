@@ -15,6 +15,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { UsersCreateDto } from 'src/modules/users/dto/users.create.dto';
 import { UsersLoginDto } from 'src/modules/users/dto/users.login.dto';
 import { UsersUpdatePasswordDto } from 'src/modules/users/dto/users.update-password.dto';
+import { UsersUpdateProfileDto } from 'src/modules/users/dto/users.update-profile.dto';
 
 import { User } from 'src/modules/users/entities/user.entity';
 
@@ -33,6 +34,17 @@ export class UsersController {
   @HttpCode(200)
   async login(@Body() dto: UsersLoginDto): Promise<string> {
     return this.usersService.login(dto);
+  }
+
+  @Patch('/@me')
+  @UseGuards(AuthGuard('user-from-jwt'))
+  async updateProfile(@Body() dto: UsersUpdateProfileDto, @Req() req: any): Promise<User> {
+    if (validator.isDefined(dto.userId)) {
+      throw new UnauthorizedException();
+    }
+    dto.userId = req.user.id;
+
+    return this.usersService.updateProfile(dto);
   }
 
   @Patch('/@me/password')

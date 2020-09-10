@@ -12,6 +12,7 @@ import { ServerError, ServerErrorType } from 'src/shared/configs/errors.config';
 import { UsersCreateDto } from 'src/modules/users/dto/users.create.dto';
 import { UsersLoginDto } from 'src/modules/users/dto/users.login.dto';
 import { UsersUpdatePasswordDto } from 'src/modules/users/dto/users.update-password.dto';
+import { UsersUpdateProfileDto } from 'src/modules/users/dto/users.update-profile.dto';
 
 import { User } from 'src/modules/users/entities/user.entity';
 
@@ -83,6 +84,53 @@ export class UsersService {
       id: user.id,
     };
     return this.jwtService.signAsync(payload);
+  }
+
+  async updateProfile(dto: UsersUpdateProfileDto): Promise<User> {
+    const updates: any = {};
+
+    if (validator.isDefined(dto.username)) {
+      updates.username = dto.username;
+    }
+
+    if (validator.isDefined(dto.fullname)) {
+      updates.fullname = dto.fullname;
+    }
+    if (validator.isDefined(dto.biography)) {
+      updates.biography = dto.biography;
+    }
+    if (validator.isDefined(dto.dateOfBirth)) {
+      updates.dateOfBirth = dto.dateOfBirth;
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return;
+    }
+
+    let result: [number, User[]];
+    try {
+      result = await this.model.update(updates, {
+        where: {
+          id: dto.userId,
+        },
+        returning: true,
+      });
+    } catch (error) {
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        if (error.errors[0].path === 'username') {
+          throw new ServerError(ServerErrorType.USER_USERNAME_IS_ALREADY_IN_USE, dto.username);
+        }
+      }
+      throw error;
+    }
+
+    if (result[0] !== 1) {
+      throw new ServerError(ServerErrorType.RECORD_IS_MISSING);
+    }
+
+    result[1][0].password = undefined;
+
+    return result[1][0];
   }
 
   async updatePassword(dto: UsersUpdatePasswordDto): Promise<void> {
