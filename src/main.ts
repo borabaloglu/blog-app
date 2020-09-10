@@ -1,6 +1,6 @@
-import * as fileUploader from 'fastify-file-upload';
 import * as path from 'path';
 
+import fileUploader from 'fastify-multipart';
 import fastifyStatic from 'fastify-static';
 
 import { ValidationPipe } from '@nestjs/common';
