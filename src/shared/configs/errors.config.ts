@@ -1,5 +1,6 @@
 enum ServerErrorType {
   GIVEN_INPUT_IS_INVALID,
+  PROPERTY_IS_MISSING,
   RECORD_IS_MISSING,
 
   FILE_MEDIA_TYPE_IS_UNEXPECTED,
@@ -26,6 +27,10 @@ class ServerError extends Error {
     switch (type) {
       case ServerErrorType.GIVEN_INPUT_IS_INVALID: {
         this.message += `${args[0]}`;
+        break;
+      }
+      case ServerErrorType.PROPERTY_IS_MISSING: {
+        this.message += `'${args[0]}' was required but it's not provided.`;
         break;
       }
       case ServerErrorType.RECORD_IS_MISSING: {

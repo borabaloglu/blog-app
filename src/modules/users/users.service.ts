@@ -1,9 +1,16 @@
 import * as argon2 from 'argon2';
 import * as validator from 'class-validator';
+import * as crypto from 'crypto';
 
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/sequelize';
+import { promises as fs } from 'fs';
+import { Sequelize } from 'sequelize';
+
+import securityConfig from 'src/shared/configs/security.config';
+import urlConfig from 'src/shared/configs/url.config';
+import fileHelper from 'src/shared/helpers/file.helper';
 
 import { UserAuthenticationPayload } from 'src/shared/authentications/user/user.authentication.payload';
 
@@ -13,6 +20,7 @@ import { UsersCreateDto } from 'src/modules/users/dto/users.create.dto';
 import { UsersLoginDto } from 'src/modules/users/dto/users.login.dto';
 import { UsersUpdatePasswordDto } from 'src/modules/users/dto/users.update-password.dto';
 import { UsersUpdateProfileDto } from 'src/modules/users/dto/users.update-profile.dto';
+import { UsersUpdateProfileImageDto } from 'src/modules/users/dto/users.update-profile-image.dto';
 
 import { User } from 'src/modules/users/entities/user.entity';
 
@@ -21,6 +29,7 @@ export class UsersService {
   constructor(
     @InjectModel(User) private readonly model: typeof User,
     private readonly jwtService: JwtService,
+    private readonly sequelize: Sequelize,
   ) {}
 
   async create(dto: UsersCreateDto): Promise<{ user: User; token: string }> {
@@ -131,6 +140,40 @@ export class UsersService {
     result[1][0].password = undefined;
 
     return result[1][0];
+  }
+
+  async updateProfileImage(dto: UsersUpdateProfileImageDto): Promise<string> {
+    fileHelper.validateFileInformation(dto.media, ['image']);
+
+    const filename = `${crypto
+      .createHash(securityConfig.crypto.hashAlgorithm)
+      .update(`${dto.user.id}.${dto.user.createdAt}`)
+      .digest('hex')}.png`;
+
+    const newProfileImageUrl = `${urlConfig.static.profileImage}/${filename}`;
+
+    return this.sequelize.transaction(async transaction => {
+      const result = await this.model.update(
+        {
+          profileImageUrl: newProfileImageUrl,
+        },
+        {
+          where: {
+            id: dto.user.id,
+          },
+          transaction,
+        },
+      );
+
+      if (result[0] !== 1) {
+        throw new ServerError(ServerErrorType.RECORD_IS_MISSING);
+      }
+
+      const mediaBuffer = await dto.media.toBuffer();
+      await fs.writeFile(`public/profile-images/${filename}`, mediaBuffer);
+
+      return newProfileImageUrl;
+    });
   }
 
   async updatePassword(dto: UsersUpdatePasswordDto): Promise<void> {

@@ -12,10 +12,13 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
+import { ServerError, ServerErrorType } from 'src/shared/configs/errors.config';
+
 import { UsersCreateDto } from 'src/modules/users/dto/users.create.dto';
 import { UsersLoginDto } from 'src/modules/users/dto/users.login.dto';
 import { UsersUpdatePasswordDto } from 'src/modules/users/dto/users.update-password.dto';
 import { UsersUpdateProfileDto } from 'src/modules/users/dto/users.update-profile.dto';
+import { UsersUpdateProfileImageDto } from 'src/modules/users/dto/users.update-profile-image.dto';
 
 import { User } from 'src/modules/users/entities/user.entity';
 
@@ -45,6 +48,27 @@ export class UsersController {
     dto.userId = req.user.id;
 
     return this.usersService.updateProfile(dto);
+  }
+
+  @Patch('/@me/profile-image')
+  @UseGuards(AuthGuard('user-from-jwt'))
+  async updateProfileImage(
+    @Body() dto: UsersUpdateProfileImageDto,
+    @Req() req: any,
+  ): Promise<string> {
+    if (validator.isDefined(dto.user)) {
+      throw new UnauthorizedException();
+    }
+    dto.user = req.user;
+
+    const media = await req.file();
+
+    if (!validator.isDefined(media)) {
+      throw new ServerError(ServerErrorType.PROPERTY_IS_MISSING, 'media');
+    }
+    dto.media = media;
+
+    return this.usersService.updateProfileImage(dto);
   }
 
   @Patch('/@me/password')
