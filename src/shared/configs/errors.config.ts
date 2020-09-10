@@ -6,6 +6,9 @@ enum ServerErrorType {
   FILE_MEDIA_TYPE_IS_UNEXPECTED,
   FILE_MEDIA_TYPE_IS_UNSUPPORTED,
 
+  FRIENDSHIP_ALREADY_FOLLOWING,
+  FRIENDSHIP_TRIED_TO_FOLLOW_SELF,
+
   USER_CURRENT_PASSWORD_CONFIRMATION_DOES_NOT_MATCH,
   USER_EMAIL_IS_ALREADY_IN_USE,
   USER_PASSWORD_CONFIRMATION_DOES_NOT_MATCH,
@@ -45,6 +48,15 @@ class ServerError extends Error {
       case ServerErrorType.FILE_MEDIA_TYPE_IS_UNSUPPORTED: {
         this.message += `'${args[0]}' is not supported.`;
         this.statusCode = 415;
+        break;
+      }
+
+      case ServerErrorType.FRIENDSHIP_ALREADY_FOLLOWING: {
+        this.message += `You are already following this user.`;
+        break;
+      }
+      case ServerErrorType.FRIENDSHIP_TRIED_TO_FOLLOW_SELF: {
+        this.message += `You cannot follow yourself.`;
         break;
       }
 
