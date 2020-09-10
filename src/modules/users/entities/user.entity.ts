@@ -3,10 +3,13 @@ import {
   Column,
   DataType,
   DefaultScope,
+  HasMany,
   Model,
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
+
+import { Friendship } from 'src/modules/friendships/entities/friendship.entity';
 
 @Table
 @DefaultScope(() => ({
@@ -47,4 +50,10 @@ export class User extends Model<User> {
 
   @Column({ type: DataType.DATE, defaultValue: null })
   lastLoginDate: Date;
+
+  @HasMany(() => Friendship, 'followerId')
+  followings: Friendship[];
+
+  @HasMany(() => Friendship, 'followingId')
+  followers: Friendship[];
 }
