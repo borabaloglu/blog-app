@@ -10,6 +10,7 @@ import { UserAuthenticationStrategy } from 'src/shared/authentications/user/user
 import { UsersController } from 'src/modules/users/users.controller';
 
 import { Friendship } from 'src/modules/friendships/entities/friendship.entity';
+import { Post } from 'src/modules/posts/entities/post.entity';
 import { User } from 'src/modules/users/entities/user.entity';
 
 import { UsersService } from 'src/modules/users/users.service';
@@ -18,7 +19,7 @@ import { UsersService } from 'src/modules/users/users.service';
   imports: [
     JwtModule.register({ secret: securityConfig.jwt.secret }),
     PassportModule.register({}),
-    SequelizeModule.forFeature([Friendship, User]),
+    SequelizeModule.forFeature([Friendship, Post, User]),
   ],
   controllers: [UsersController],
   providers: [UserAuthenticationStrategy, UsersService],

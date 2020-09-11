@@ -10,6 +10,7 @@ import {
 } from 'sequelize-typescript';
 
 import { Friendship } from 'src/modules/friendships/entities/friendship.entity';
+import { Post } from 'src/modules/posts/entities/post.entity';
 
 @Table
 @DefaultScope(() => ({
@@ -56,4 +57,7 @@ export class User extends Model<User> {
 
   @HasMany(() => Friendship, 'followingId')
   followers: Friendship[];
+
+  @HasMany(() => Post, 'authorId')
+  posts: Post[];
 }
