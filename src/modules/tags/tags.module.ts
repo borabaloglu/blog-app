@@ -13,5 +13,6 @@ import { TagsService } from 'src/modules/tags/tags.service';
   imports: [SequelizeModule.forFeature([Post, PostTag, Tag])],
   controllers: [TagsController],
   providers: [TagsService],
+  exports: [TagsService],
 })
 export class TagsModule {}
