@@ -10,7 +10,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 
-import { PostTag } from 'src/modules/posts/entities/post-tag.entity';
+import { PostTag } from 'src/modules/post-tags/entities/post-tag.entity';
 import { Tag } from 'src/modules/tags/entities/tag.entity';
 import { User } from 'src/modules/users/entities/user.entity';
 
