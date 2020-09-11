@@ -1,5 +1,8 @@
+import slugify from 'slugify';
+
 import {
   AutoIncrement,
+  BeforeValidate,
   BelongsTo,
   BelongsToMany,
   Column,
@@ -14,7 +17,14 @@ import { PostTag } from 'src/modules/post-tags/entities/post-tag.entity';
 import { Tag } from 'src/modules/tags/entities/tag.entity';
 import { User } from 'src/modules/users/entities/user.entity';
 
-@Table
+@Table({
+  indexes: [
+    {
+      fields: ['authorId', 'slug'],
+      unique: true,
+    },
+  ],
+})
 export class Post extends Model<Post> {
   @PrimaryKey
   @AutoIncrement
@@ -48,4 +58,12 @@ export class Post extends Model<Post> {
     () => PostTag,
   )
   tags: Tag[];
+
+  @BeforeValidate
+  static generateSlug(instance: Post) {
+    instance.slug = slugify(instance.title, {
+      lower: true,
+      replacement: '-',
+    });
+  }
 }

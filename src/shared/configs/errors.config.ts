@@ -9,6 +9,8 @@ enum ServerErrorType {
   FRIENDSHIP_ALREADY_FOLLOWING,
   FRIENDSHIP_TRIED_TO_FOLLOW_SELF,
 
+  POST_TRIED_TO_CREATE_WITH_SAME_TITLE,
+
   USER_CURRENT_PASSWORD_CONFIRMATION_DOES_NOT_MATCH,
   USER_EMAIL_IS_ALREADY_IN_USE,
   USER_PASSWORD_CONFIRMATION_DOES_NOT_MATCH,
@@ -57,6 +59,11 @@ class ServerError extends Error {
       }
       case ServerErrorType.FRIENDSHIP_TRIED_TO_FOLLOW_SELF: {
         this.message += `You cannot follow yourself.`;
+        break;
+      }
+
+      case ServerErrorType.POST_TRIED_TO_CREATE_WITH_SAME_TITLE: {
+        this.message += `You cannot create posts with same titles.`;
         break;
       }
 
