@@ -1,3 +1,5 @@
+import * as validator from 'class-validator';
+
 import slugify from 'slugify';
 
 import {
@@ -61,9 +63,11 @@ export class Post extends Model<Post> {
 
   @BeforeValidate
   static generateSlug(instance: Post) {
-    instance.slug = slugify(instance.title, {
-      lower: true,
-      replacement: '-',
-    });
+    if (validator.isDefined(instance.title)) {
+      instance.slug = slugify(instance.title, {
+        lower: true,
+        replacement: '-',
+      });
+    }
   }
 }

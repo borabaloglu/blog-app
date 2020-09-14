@@ -1,10 +1,13 @@
+import * as validator from 'class-validator';
+
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Sequelize } from 'sequelize';
+import { Sequelize, Transaction } from 'sequelize';
 
 import { ServerError, ServerErrorType } from 'src/shared/configs/errors.config';
 
 import { PostsCreateDto } from 'src/modules/posts/dto/posts.create.dto';
+import { PostsUpdateDto } from 'src/modules/posts/dto/posts.update.dto';
 
 import { Post } from 'src/modules/posts/entities/post.entity';
 
@@ -19,6 +22,16 @@ export class PostsService {
     private readonly tagsService: TagsService,
     private readonly sequelize: Sequelize,
   ) {}
+
+  async findAuthorId(postId: number, transaction?: Transaction): Promise<number> {
+    const post = await this.model.findByPk(postId, { transaction });
+
+    if (!validator.isDefined(post)) {
+      throw new ServerError(ServerErrorType.RECORD_IS_MISSING);
+    }
+
+    return post.authorId;
+  }
 
   async create(dto: PostsCreateDto): Promise<Post> {
     try {
@@ -54,6 +67,52 @@ export class PostsService {
       });
 
       return entity;
+    } catch (error) {
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        throw new ServerError(ServerErrorType.POST_TRIED_TO_CREATE_WITH_SAME_TITLE);
+      }
+      throw error;
+    }
+  }
+
+  async update(dto: PostsUpdateDto): Promise<Post> {
+    const updates: any = {};
+
+    {
+      if (validator.isDefined(dto.title)) {
+        updates.title = dto.title;
+      }
+
+      if (validator.isDefined(dto.subtitle)) {
+        updates.subtitle = dto.subtitle;
+      }
+
+      if (validator.isDefined(dto.content)) {
+        updates.content = dto.content;
+      }
+
+      if (validator.isDefined(dto.language)) {
+        updates.language = dto.language;
+      }
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return;
+    }
+
+    try {
+      const result = await this.model.update(updates, {
+        where: {
+          id: dto.postId,
+        },
+        returning: true,
+      });
+
+      if (result[0] !== 1) {
+        throw new ServerError(ServerErrorType.RECORD_IS_MISSING);
+      }
+
+      return result[1][0];
     } catch (error) {
       if (error.name === 'SequelizeUniqueConstraintError') {
         throw new ServerError(ServerErrorType.POST_TRIED_TO_CREATE_WITH_SAME_TITLE);
