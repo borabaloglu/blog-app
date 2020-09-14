@@ -8,8 +8,10 @@ import { ServerError, ServerErrorType } from 'src/shared/configs/errors.config';
 
 import { PostsCreateDto } from 'src/modules/posts/dto/posts.create.dto';
 import { PostsUpdateDto } from 'src/modules/posts/dto/posts.update.dto';
+import { PostsUpdateTagsDto } from 'src/modules/posts/dto/posts.update-tags.dto';
 
 import { Post } from 'src/modules/posts/entities/post.entity';
+import { PostTag } from 'src/modules/post-tags/entities/post-tag.entity';
 
 import { PostTagsService } from 'src/modules/post-tags/post-tags.service';
 import { TagsService } from 'src/modules/tags/tags.service';
@@ -119,5 +121,26 @@ export class PostsService {
       }
       throw error;
     }
+  }
+
+  async updateTags(dto: PostsUpdateTagsDto): Promise<PostTag[]> {
+    return this.sequelize.transaction(async transaction => {
+      await this.postTagsService.destroyByPostId(dto.postId, transaction);
+
+      const tags = await this.tagsService.bulkCreate(
+        {
+          tags: dto.tags,
+        },
+        transaction,
+      );
+
+      return this.postTagsService.bulkCreate(
+        {
+          postId: dto.postId,
+          tags,
+        },
+        transaction,
+      );
+    });
   }
 }
