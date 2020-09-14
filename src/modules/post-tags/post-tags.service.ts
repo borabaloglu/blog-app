@@ -18,4 +18,13 @@ export class PostTagsService {
 
     return this.model.bulkCreate(postTags, { transaction });
   }
+
+  async destroyByPostId(postId: number, transaction?: Transaction): Promise<void> {
+    await this.model.destroy({
+      where: {
+        postId,
+      },
+      transaction,
+    });
+  }
 }
