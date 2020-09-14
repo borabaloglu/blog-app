@@ -19,6 +19,11 @@ import { PostTag } from 'src/modules/post-tags/entities/post-tag.entity';
 import { Tag } from 'src/modules/tags/entities/tag.entity';
 import { User } from 'src/modules/users/entities/user.entity';
 
+export enum PostType {
+  PUBLIC,
+  PRIVATE,
+}
+
 @Table({
   indexes: [
     {
@@ -54,6 +59,9 @@ export class Post extends Model<Post> {
 
   @Column({ type: DataType.STRING(5), allowNull: false })
   language: string;
+
+  @Column({ type: DataType.SMALLINT, allowNull: false, defaultValue: PostType.PUBLIC })
+  type: PostType;
 
   @BelongsToMany(
     () => Tag,

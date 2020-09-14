@@ -1,7 +1,9 @@
 import * as languages from 'country-language';
 
 import { Transform } from 'class-transformer';
-import { IsIn, IsInt, IsOptional, IsString, Length, Min } from 'class-validator';
+import { IsEnum, IsIn, IsInt, IsOptional, IsString, Length, Min } from 'class-validator';
+
+import { PostType } from 'src/modules/posts/entities/post.entity';
 
 export class PostsUpdateDto {
   @IsOptional()
@@ -32,4 +34,8 @@ export class PostsUpdateDto {
   @IsString()
   @IsIn(languages.getLanguageCodes(1))
   language?: string;
+
+  @IsOptional()
+  @IsEnum(PostType)
+  type: PostType;
 }

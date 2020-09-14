@@ -47,6 +47,7 @@ export class PostsService {
         entity.subtitle = dto.subtitle;
         entity.content = dto.content;
         entity.language = dto.language;
+        entity.type = dto.type;
 
         await entity.save({ transaction });
 
@@ -95,6 +96,10 @@ export class PostsService {
 
       if (validator.isDefined(dto.language)) {
         updates.language = dto.language;
+      }
+
+      if (validator.isDefined(dto.type)) {
+        updates.type = dto.type;
       }
     }
 

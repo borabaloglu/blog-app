@@ -6,6 +6,7 @@ import {
   ArrayMinSize,
   ArrayUnique,
   IsArray,
+  IsEnum,
   IsIn,
   IsInt,
   IsOptional,
@@ -14,6 +15,8 @@ import {
   Matches,
   Min,
 } from 'class-validator';
+
+import { PostType } from 'src/modules/posts/entities/post.entity';
 
 export class PostsCreateDto {
   @IsOptional()
@@ -40,6 +43,9 @@ export class PostsCreateDto {
   @IsString()
   @IsIn(languages.getLanguageCodes(1))
   language: string;
+
+  @IsEnum(PostType)
+  type: PostType;
 
   @IsArray()
   @ArrayMinSize(1)
