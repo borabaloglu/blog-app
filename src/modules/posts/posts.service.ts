@@ -17,6 +17,7 @@ import { Post } from 'src/modules/posts/entities/post.entity';
 import { PostTag } from 'src/modules/post-tags/entities/post-tag.entity';
 import { Tag } from 'src/modules/tags/entities/tag.entity';
 
+import { FriendshipsService } from 'src/modules/friendships/friendships.service';
 import { PostTagsService } from 'src/modules/post-tags/post-tags.service';
 import { TagsService } from 'src/modules/tags/tags.service';
 
@@ -38,6 +39,7 @@ export class PostsService {
 
   constructor(
     @InjectModel(Post) private readonly model: typeof Post,
+    private readonly friendshipsService: FriendshipsService,
     private readonly postTagsService: PostTagsService,
     private readonly tagsService: TagsService,
     private readonly sequelize: Sequelize,
@@ -175,6 +177,14 @@ export class PostsService {
     }
 
     return this.model.findAll(query);
+  }
+
+  async getPostsOfFollowings(dto: PostsLookupDto, userId: number): Promise<Post[]> {
+    const friendships = await this.friendshipsService.getFollowings(userId);
+
+    dto.authorIds = friendships.map(friendship => friendship.following.id);
+
+    return this.lookup(dto);
   }
 
   async findAuthorId(postId: number, transaction?: Transaction): Promise<number> {

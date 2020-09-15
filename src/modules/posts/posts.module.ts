@@ -10,13 +10,19 @@ import { PostTag } from 'src/modules/post-tags/entities/post-tag.entity';
 import { Tag } from 'src/modules/tags/entities/tag.entity';
 import { User } from 'src/modules/users/entities/user.entity';
 
+import { FriendshipsModule } from 'src/modules/friendships/friendships.module';
 import { PostTagsModule } from 'src/modules/post-tags/post-tags.module';
 import { TagsModule } from 'src/modules/tags/tags.module';
 
 import { PostsService } from 'src/modules/posts/posts.service';
 
 @Module({
-  imports: [SequelizeModule.forFeature([Post, PostTag, Tag, User]), PostTagsModule, TagsModule],
+  imports: [
+    SequelizeModule.forFeature([Post, PostTag, Tag, User]),
+    FriendshipsModule,
+    PostTagsModule,
+    TagsModule,
+  ],
   controllers: [PostsController],
   providers: [UserAuthenticationStrategy, PostsService],
 })

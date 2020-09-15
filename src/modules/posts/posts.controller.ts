@@ -63,6 +63,30 @@ export class PostsController {
     return this.postsService.lookup(dto);
   }
 
+  @Get('/@me/followings')
+  @UseGuards(AuthGuard('user-from-jwt'))
+  async getPostsOfFollowings(@Query() dto: PostsLookupDto, @Req() req: any): Promise<PostEntity[]> {
+    if (validator.isDefined(dto.authorIds)) {
+      throw new UnauthorizedException();
+    }
+
+    if (validator.isDefined(dto.type)) {
+      throw new UnauthorizedException();
+    } else {
+      dto.type = PostType.PUBLIC;
+    }
+
+    if (validator.isDefined(dto.order)) {
+      if (dto.order.includes('type')) {
+        throw new UnauthorizedException();
+      }
+    } else {
+      dto.order = 'id';
+    }
+
+    return this.postsService.getPostsOfFollowings(dto, req.user.id);
+  }
+
   @Post('/')
   @UseGuards(AuthGuard('user-from-jwt'))
   async create(@Body() dto: PostsCreateDto, @Req() req: any): Promise<PostEntity> {
