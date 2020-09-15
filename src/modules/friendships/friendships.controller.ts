@@ -3,6 +3,7 @@ import * as validator from 'class-validator';
 import {
   Controller,
   Delete,
+  Get,
   Param,
   Post,
   Req,
@@ -10,6 +11,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+
+import { ParseInt } from 'src/shared/pipes/parse-int.pipe';
 
 import { FriendshipsFollowDto } from 'src/modules/friendships/dto/friendships.follow.dto';
 import { FriendshipsUnfollowDto } from 'src/modules/friendships/dto/friendships.unfollow.dto';
@@ -21,6 +24,27 @@ import { FriendshipsService } from 'src/modules/friendships/friendships.service'
 @Controller('friendships')
 export class FriendshipsController {
   constructor(private readonly friendshipsService: FriendshipsService) {}
+
+  @Get('/@me/followers')
+  @UseGuards(AuthGuard('user-from-jwt'))
+  async getCurrentUsersFollowers(@Req() req: any): Promise<Friendship[]> {
+    return this.friendshipsService.getFollowers(req.user.id);
+  }
+
+  @Get('/@me/followings')
+  @UseGuards(AuthGuard('user-from-jwt'))
+  async getCurrentUsersFollowings(@Req() req: any): Promise<Friendship[]> {
+    return this.friendshipsService.getFollowings(req.user.id);
+  }
+
+  @Get('/@me/relationship/:userId')
+  @UseGuards(AuthGuard('user-from-jwt'))
+  async getFollowRelationship(
+    @Param('userId', ParseInt) userId: number,
+    @Req() req: any,
+  ): Promise<{ isFollower: boolean; isFollowing: boolean }> {
+    return this.friendshipsService.getFollowRelationship(req.user.id, userId);
+  }
 
   @Post('/:followingId')
   @UseGuards(AuthGuard('user-from-jwt'))
