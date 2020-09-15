@@ -6,6 +6,11 @@ enum ServerErrorType {
   FILE_MEDIA_TYPE_IS_UNEXPECTED,
   FILE_MEDIA_TYPE_IS_UNSUPPORTED,
 
+  LOOKUP_START_PAGE_IS_BIGGER_THAN_STOP_PAGE,
+  LOOKUP_START_RANGE_IS_BIGGER_THAN_STOP_RANGE,
+  LOOKUP_UNKNOWN_LOAD_ATTRIBUTE,
+  LOOKUP_UNKNOWN_ORDER_ATTRIBUTE,
+
   FRIENDSHIP_ALREADY_FOLLOWING,
   FRIENDSHIP_TRIED_TO_FOLLOW_SELF,
 
@@ -50,6 +55,23 @@ class ServerError extends Error {
       case ServerErrorType.FILE_MEDIA_TYPE_IS_UNSUPPORTED: {
         this.message += `'${args[0]}' is not supported.`;
         this.statusCode = 415;
+        break;
+      }
+
+      case ServerErrorType.LOOKUP_START_PAGE_IS_BIGGER_THAN_STOP_PAGE: {
+        this.message += `Provided start page '${args[0]}' is bigger than provided stop page '${args[1]}'.`;
+        break;
+      }
+      case ServerErrorType.LOOKUP_START_RANGE_IS_BIGGER_THAN_STOP_RANGE: {
+        this.message += `Provided start range '${args[0]}' is bigger than provided stop range '${args[1]}'.`;
+        break;
+      }
+      case ServerErrorType.LOOKUP_UNKNOWN_ORDER_ATTRIBUTE: {
+        this.message += `Cannot order by the attribute '${args[0]}' because it's not known.`;
+        break;
+      }
+      case ServerErrorType.LOOKUP_UNKNOWN_LOAD_ATTRIBUTE: {
+        this.message += `Cannot load the attribute '${args[0]}' because it's not known.`;
         break;
       }
 
