@@ -3,9 +3,11 @@ import * as validator from 'class-validator';
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   Patch,
   Post,
+  Query,
   Req,
   UnauthorizedException,
   UseGuards,
@@ -16,6 +18,7 @@ import { ServerError, ServerErrorType } from 'src/shared/configs/errors.config';
 
 import { UsersCreateDto } from 'src/modules/users/dto/users.create.dto';
 import { UsersLoginDto } from 'src/modules/users/dto/users.login.dto';
+import { UsersLookupDto } from 'src/modules/users/dto/users.lookup.dto';
 import { UsersUpdatePasswordDto } from 'src/modules/users/dto/users.update-password.dto';
 import { UsersUpdateProfileDto } from 'src/modules/users/dto/users.update-profile.dto';
 import { UsersUpdateProfileImageDto } from 'src/modules/users/dto/users.update-profile-image.dto';
@@ -27,6 +30,54 @@ import { UsersService } from 'src/modules/users/users.service';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get('/')
+  async lookup(@Query() dto: UsersLookupDto): Promise<User[]> {
+    if (validator.isDefined(dto.emails)) {
+      throw new UnauthorizedException();
+    }
+
+    if (validator.isDefined(dto.lastLoginDateRange)) {
+      throw new UnauthorizedException();
+    }
+
+    if (validator.isDefined(dto.updatedAtRange)) {
+      throw new UnauthorizedException();
+    }
+
+    if (validator.isDefined(dto.load)) {
+      if (dto.load.includes('email')) {
+        throw new UnauthorizedException();
+      }
+      if (dto.load.includes('lastLoginDate')) {
+        throw new UnauthorizedException();
+      }
+      if (dto.load.includes('updatedAt')) {
+        throw new UnauthorizedException();
+      }
+    } else {
+      dto.load = this.usersService.loadableAttributes.join(',');
+      dto.load.replace('email', '');
+      dto.load.replace('lastLoginDate', '');
+      dto.load.replace('updatedAt', '');
+    }
+
+    if (validator.isDefined(dto.order)) {
+      if (dto.order.includes('email')) {
+        throw new UnauthorizedException();
+      }
+      if (dto.order.includes('lastLoginDate')) {
+        throw new UnauthorizedException();
+      }
+      if (dto.order.includes('updatedAt')) {
+        throw new UnauthorizedException();
+      }
+    } else {
+      dto.order = 'id';
+    }
+
+    return this.usersService.lookup(dto);
+  }
 
   @Post('/')
   async create(@Body() dto: UsersCreateDto): Promise<{ user: User; token: string }> {
