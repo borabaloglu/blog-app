@@ -27,13 +27,13 @@ export class FriendshipsController {
 
   @Get('/@me/followers')
   @UseGuards(AuthGuard('user-from-jwt'))
-  async getCurrentUsersFollowers(@Req() req: any): Promise<Friendship[]> {
+  async getFollowersOfCurrentUser(@Req() req: any): Promise<Friendship[]> {
     return this.friendshipsService.getFollowers(req.user.id);
   }
 
   @Get('/@me/followings')
   @UseGuards(AuthGuard('user-from-jwt'))
-  async getCurrentUsersFollowings(@Req() req: any): Promise<Friendship[]> {
+  async getFollowingsOfCurrentUser(@Req() req: any): Promise<Friendship[]> {
     return this.friendshipsService.getFollowings(req.user.id);
   }
 
