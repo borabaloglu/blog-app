@@ -15,5 +15,6 @@ import { FriendshipsService } from 'src/modules/friendships/friendships.service'
   imports: [PassportModule.register({}), SequelizeModule.forFeature([Friendship, User])],
   controllers: [FriendshipsController],
   providers: [UserAuthenticationStrategy, FriendshipsService],
+  exports: [FriendshipsService],
 })
 export class FriendshipsModule {}
