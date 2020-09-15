@@ -49,6 +49,20 @@ export class PostsController {
     return this.postsService.lookup(dto);
   }
 
+  @Get('/@me')
+  @UseGuards(AuthGuard('user-from-jwt'))
+  async getPostsOfCurrentUser(
+    @Query() dto: PostsLookupDto,
+    @Req() req: any,
+  ): Promise<PostEntity[]> {
+    if (validator.isDefined(dto.authorIds)) {
+      throw new UnauthorizedException();
+    }
+    dto.authorIds = [req.user.id];
+
+    return this.postsService.lookup(dto);
+  }
+
   @Post('/')
   @UseGuards(AuthGuard('user-from-jwt'))
   async create(@Body() dto: PostsCreateDto, @Req() req: any): Promise<PostEntity> {
