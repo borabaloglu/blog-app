@@ -3,9 +3,11 @@ import * as validator from 'class-validator';
 import {
   Body,
   Controller,
+  Get,
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UnauthorizedException,
   UseGuards,
@@ -15,10 +17,11 @@ import { AuthGuard } from '@nestjs/passport';
 import { ParseInt } from 'src/shared/pipes/parse-int.pipe';
 
 import { PostsCreateDto } from 'src/modules/posts/dto/posts.create.dto';
+import { PostsLookupDto } from 'src/modules/posts/dto/posts.lookup.dto';
 import { PostsUpdateDto } from 'src/modules/posts/dto/posts.update.dto';
 import { PostsUpdateTagsDto } from 'src/modules/posts/dto/posts.update-tags.dto';
 
-import { Post as PostEntity } from 'src/modules/posts/entities/post.entity';
+import { Post as PostEntity, PostType } from 'src/modules/posts/entities/post.entity';
 import { PostTag } from 'src/modules/post-tags/entities/post-tag.entity';
 
 import { PostsService } from 'src/modules/posts/posts.service';
@@ -26,6 +29,25 @@ import { PostsService } from 'src/modules/posts/posts.service';
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
+
+  @Get('/')
+  async lookup(@Query() dto: PostsLookupDto): Promise<PostEntity[]> {
+    if (validator.isDefined(dto.type)) {
+      throw new UnauthorizedException();
+    } else {
+      dto.type = PostType.PUBLIC;
+    }
+
+    if (validator.isDefined(dto.order)) {
+      if (dto.order.includes('type')) {
+        throw new UnauthorizedException();
+      }
+    } else {
+      dto.order = 'id';
+    }
+
+    return this.postsService.lookup(dto);
+  }
 
   @Post('/')
   @UseGuards(AuthGuard('user-from-jwt'))

@@ -2,28 +2,180 @@ import * as validator from 'class-validator';
 
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Sequelize, Transaction } from 'sequelize';
+import { Op, Sequelize, Transaction } from 'sequelize';
+
+import lookupHelper from 'src/shared/helpers/lookup.helper';
 
 import { ServerError, ServerErrorType } from 'src/shared/configs/errors.config';
 
 import { PostsCreateDto } from 'src/modules/posts/dto/posts.create.dto';
+import { PostsLookupDto } from 'src/modules/posts/dto/posts.lookup.dto';
 import { PostsUpdateDto } from 'src/modules/posts/dto/posts.update.dto';
 import { PostsUpdateTagsDto } from 'src/modules/posts/dto/posts.update-tags.dto';
 
 import { Post } from 'src/modules/posts/entities/post.entity';
 import { PostTag } from 'src/modules/post-tags/entities/post-tag.entity';
+import { Tag } from 'src/modules/tags/entities/tag.entity';
 
 import { PostTagsService } from 'src/modules/post-tags/post-tags.service';
 import { TagsService } from 'src/modules/tags/tags.service';
 
 @Injectable()
 export class PostsService {
+  readonly orderableAttributes = [
+    'id',
+    'authorId',
+    'slug',
+    'title',
+    'subtitle',
+    'content',
+    'language',
+    'type',
+    'createdAt',
+    'updatedAt',
+  ];
+  readonly loadableAttributes = [...this.orderableAttributes];
+
   constructor(
     @InjectModel(Post) private readonly model: typeof Post,
     private readonly postTagsService: PostTagsService,
     private readonly tagsService: TagsService,
     private readonly sequelize: Sequelize,
   ) {}
+
+  async lookup(dto: PostsLookupDto, transaction?: Transaction): Promise<Post[]> {
+    const query: any = {};
+
+    {
+      const where: any = {};
+      const include: any = [
+        {
+          model: Tag,
+          required: true,
+          through: {
+            attributes: [],
+          },
+          where: {},
+        },
+      ];
+
+      if (validator.isDefined(dto.postIds)) {
+        where.id = dto.postIds;
+      }
+
+      if (validator.isDefined(dto.authorIds)) {
+        where.authorId = dto.authorIds;
+      }
+
+      if (validator.isDefined(dto.slugs)) {
+        where.slug = {
+          [Op.iLike]: {
+            [Op.any]: dto.slugs.map(item => `%${item}%`),
+          },
+        };
+      }
+
+      if (validator.isDefined(dto.titles)) {
+        where.title = {
+          [Op.iLike]: {
+            [Op.any]: dto.titles.map(item => `%${item}%`),
+          },
+        };
+      }
+
+      if (validator.isDefined(dto.subtitles)) {
+        where.subtitle = {
+          [Op.iLike]: {
+            [Op.any]: dto.subtitles.map(item => `%${item}%`),
+          },
+        };
+      }
+
+      if (validator.isDefined(dto.contents)) {
+        where.content = {
+          [Op.iLike]: {
+            [Op.any]: dto.contents.map(item => `%${item}%`),
+          },
+        };
+      }
+
+      if (validator.isDefined(dto.languages)) {
+        where.language = dto.languages;
+      }
+
+      if (validator.isDefined(dto.type)) {
+        where.type = dto.type;
+      }
+
+      if (validator.isDefined(dto.tags)) {
+        include[0].where.name = dto.tags;
+      }
+
+      if (validator.isDefined(dto.createdAtRange)) {
+        where.createdAt = lookupHelper.generateRangeQuery(dto.createdAtRange);
+      }
+
+      if (validator.isDefined(dto.updatedAtRange)) {
+        where.updatedAt = lookupHelper.generateRangeQuery(dto.updatedAtRange);
+      }
+
+      if (validator.isDefined(dto.search)) {
+        where[Op.or] = [
+          {
+            slug: {
+              [Op.iLike]: {
+                [Op.any]: dto.search.map(item => `%${item}%`),
+              },
+            },
+          },
+          {
+            title: {
+              [Op.iLike]: {
+                [Op.any]: dto.search.map(item => `%${item}%`),
+              },
+            },
+          },
+          {
+            subtitle: {
+              [Op.iLike]: {
+                [Op.any]: dto.search.map(item => `%${item}%`),
+              },
+            },
+          },
+          {
+            content: {
+              [Op.iLike]: {
+                [Op.any]: dto.search.map(item => `%${item}%`),
+              },
+            },
+          },
+        ];
+      }
+
+      query.where = where;
+      query.include = include;
+    }
+
+    if (validator.isDefined(dto.order)) {
+      query.order = lookupHelper.transformOrder(dto.order, this.orderableAttributes);
+    }
+
+    if (validator.isDefined(dto.load)) {
+      query.attributes = lookupHelper.transformLoad(dto.load, this.loadableAttributes);
+    }
+
+    if (validator.isDefined(dto.page)) {
+      const { offset, limit } = lookupHelper.transformPage(dto.page);
+      query.offset = offset;
+      query.limit = limit;
+    }
+
+    if (validator.isDefined(transaction)) {
+      query.transaction = transaction;
+    }
+
+    return this.model.findAll(query);
+  }
 
   async findAuthorId(postId: number, transaction?: Transaction): Promise<number> {
     const post = await this.model.findByPk(postId, { transaction });
