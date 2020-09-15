@@ -79,6 +79,12 @@ export class UsersController {
     return this.usersService.lookup(dto);
   }
 
+  @Get('/@me')
+  @UseGuards(AuthGuard('user-from-jwt'))
+  async getCurrentUser(@Req() req: any): Promise<User> {
+    return req.user;
+  }
+
   @Post('/')
   async create(@Body() dto: UsersCreateDto): Promise<{ user: User; token: string }> {
     return this.usersService.create(dto);
