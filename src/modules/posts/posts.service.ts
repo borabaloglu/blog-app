@@ -1,9 +1,14 @@
 import * as validator from 'class-validator';
+import * as crypto from 'crypto';
 
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { promises as fs } from 'fs';
 import { Op, Sequelize, Transaction } from 'sequelize';
 
+import securityConfig from 'src/shared/configs/security.config';
+import urlConfig from 'src/shared/configs/url.config';
+import fileHelper from 'src/shared/helpers/file.helper';
 import lookupHelper from 'src/shared/helpers/lookup.helper';
 
 import { ServerError, ServerErrorType } from 'src/shared/configs/errors.config';
@@ -205,11 +210,23 @@ export class PostsService {
 
   async create(dto: PostsCreateDto): Promise<Post> {
     try {
+      const mediaBuffer = Buffer.from(dto.coverImage, 'base64');
+
+      await fileHelper.validateFileInformation(mediaBuffer, ['image']);
+
+      const filename = `${crypto
+        .createHash(securityConfig.crypto.hashAlgorithm)
+        .update(`${dto.authorId}.${Date.now()}`)
+        .digest('hex')}.png`;
+
+      const coverImageUrl = `${urlConfig.static.coverImage}/${filename}`;
+
       let entity: Post;
 
       await this.sequelize.transaction(async transaction => {
         entity = this.model.build();
 
+        entity.coverImageUrl = coverImageUrl;
         entity.authorId = dto.authorId;
         entity.title = dto.title;
         entity.subtitle = dto.subtitle;
@@ -235,6 +252,8 @@ export class PostsService {
           },
           transaction,
         );
+
+        await fs.writeFile(`public/cover-images/${filename}`, mediaBuffer, 'base64');
       });
 
       return entity;

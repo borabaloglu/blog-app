@@ -6,6 +6,7 @@ import {
   ArrayMinSize,
   ArrayUnique,
   IsArray,
+  IsBase64,
   IsEnum,
   IsIn,
   IsInt,
@@ -23,6 +24,9 @@ export class PostsCreateDto {
   @IsInt()
   @Min(1)
   authorId?: number;
+
+  @IsBase64()
+  coverImage: string;
 
   @Transform((value: string) => value.trim())
   @IsString()
