@@ -45,6 +45,9 @@ export class Post extends Model<Post> {
   @BelongsTo(() => User, 'authorId')
   author: User;
 
+  @Column({ type: DataType.TEXT, allowNull: false, defaultValue: '' })
+  coverImageUrl: string;
+
   @Column({ type: DataType.STRING(100), allowNull: false })
   slug: string;
 
