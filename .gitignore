@@ -51,3 +51,5 @@ lerna-debug.log*
 # Static Files
 public/profile-images/*
 !public/profile-images/.gitkeep
+public/cover-images/*
+!public/cover-images/.gitkeep
