@@ -16,6 +16,7 @@ import { PostsUpdateTagsDto } from 'src/modules/posts/dto/posts.update-tags.dto'
 import { Post } from 'src/modules/posts/entities/post.entity';
 import { PostTag } from 'src/modules/post-tags/entities/post-tag.entity';
 import { Tag } from 'src/modules/tags/entities/tag.entity';
+import { User } from 'src/modules/users/entities/user.entity';
 
 import { FriendshipsService } from 'src/modules/friendships/friendships.service';
 import { PostTagsService } from 'src/modules/post-tags/post-tags.service';
@@ -58,6 +59,11 @@ export class PostsService {
             attributes: [],
           },
           where: {},
+        },
+        {
+          model: User,
+          required: true,
+          attributes: ['id', 'username', 'fullname', 'profileImageUrl'],
         },
       ];
 
