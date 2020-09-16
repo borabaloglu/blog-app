@@ -14,8 +14,6 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
-import { ServerError, ServerErrorType } from 'src/shared/configs/errors.config';
-
 import { UsersCreateDto } from 'src/modules/users/dto/users.create.dto';
 import { UsersLoginDto } from 'src/modules/users/dto/users.login.dto';
 import { UsersLookupDto } from 'src/modules/users/dto/users.lookup.dto';
@@ -117,13 +115,6 @@ export class UsersController {
       throw new UnauthorizedException();
     }
     dto.user = req.user;
-
-    const media = await req.file();
-
-    if (!validator.isDefined(media)) {
-      throw new ServerError(ServerErrorType.PROPERTY_IS_MISSING, 'media');
-    }
-    dto.media = media;
 
     return this.usersService.updateProfileImage(dto);
   }

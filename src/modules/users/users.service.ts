@@ -264,7 +264,9 @@ export class UsersService {
   }
 
   async updateProfileImage(dto: UsersUpdateProfileImageDto): Promise<string> {
-    fileHelper.validateFileInformation(dto.media, ['image']);
+    const mediaBufer = Buffer.from(dto.profileImage, 'base64');
+
+    await fileHelper.validateFileInformation(mediaBufer, ['image']);
 
     const filename = `${crypto
       .createHash(securityConfig.crypto.hashAlgorithm)
@@ -290,8 +292,7 @@ export class UsersService {
         throw new ServerError(ServerErrorType.RECORD_IS_MISSING);
       }
 
-      const mediaBuffer = await dto.media.toBuffer();
-      await fs.writeFile(`public/profile-images/${filename}`, mediaBuffer);
+      await fs.writeFile(`public/profile-images/${filename}`, mediaBufer, 'base64');
 
       return newProfileImageUrl;
     });

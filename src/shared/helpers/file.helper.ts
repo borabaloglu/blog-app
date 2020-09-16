@@ -1,37 +1,38 @@
 import * as validator from 'class-validator';
 
+import { fromBuffer } from 'file-type';
+
 import { ServerError, ServerErrorType } from 'src/shared/configs/errors.config';
 
 export interface FileInformation {
-  ext: string;
+  mime: string;
   type: string;
+  ext: string;
   length?: number;
 }
 
 export default {
-  extractFileInformation(file: any): FileInformation {
-    if (!validator.isDefined(file.mimetype)) {
-      throw new ServerError(ServerErrorType.FILE_MEDIA_TYPE_IS_UNSUPPORTED, file.mimetype);
-    }
+  async extractFileInformation(file: any): Promise<FileInformation> {
+    const fileInformation = await fromBuffer(file);
 
-    const fileMimetypeParts: string[] = file.mimetype.split('/');
-    if (fileMimetypeParts.length < 2) {
+    if (!validator.isDefined(fileInformation.mime)) {
       throw new ServerError(ServerErrorType.FILE_MEDIA_TYPE_IS_UNSUPPORTED, file.mimetype);
     }
 
     return {
-      type: fileMimetypeParts[0],
-      ext: fileMimetypeParts[1],
+      mime: fileInformation.mime,
+      type: fileInformation.mime.split('/')[0],
+      ext: fileInformation.ext,
     };
   },
 
-  validateFileInformation(file: any, expectedMimeTypes: string[]): FileInformation {
-    const fileInformation = this.extractFileInformation(file);
+  async validateFileInformation(file: any, expectedFileTypes: string[]): Promise<FileInformation> {
+    const fileInformation = await this.extractFileInformation(file);
 
-    if (!expectedMimeTypes.includes(fileInformation.type)) {
+    if (!expectedFileTypes.includes(fileInformation.type)) {
       throw new ServerError(
         ServerErrorType.FILE_MEDIA_TYPE_IS_UNEXPECTED,
-        expectedMimeTypes.join(' or '),
+        expectedFileTypes.join(' or '),
         fileInformation.type,
       );
     }
