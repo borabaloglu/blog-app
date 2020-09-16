@@ -1,6 +1,5 @@
 import * as path from 'path';
 
-import fileUploader from 'fastify-multipart';
 import fastifyStatic from 'fastify-static';
 
 import { ValidationPipe } from '@nestjs/common';
@@ -26,12 +25,14 @@ import { AppModule } from 'src/app.module';
     } as any,
   });
 
-  fastify.register(fileUploader);
   fastify.register(fastifyStatic, {
     root: path.join(__dirname, '..', 'public'),
   });
 
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, fastify);
+
+  app.enableCors();
+
   app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({
