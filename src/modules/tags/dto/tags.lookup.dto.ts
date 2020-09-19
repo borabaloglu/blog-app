@@ -4,6 +4,7 @@ import {
   ArrayMinSize,
   ArrayUnique,
   IsOptional,
+  IsString,
   Length,
   Matches,
 } from 'class-validator';
@@ -14,6 +15,7 @@ export class TagsLookupDto {
   @ArrayUnique()
   @ArrayMinSize(1)
   @ArrayMaxSize(32)
+  @IsString({ each: true })
   @Length(1, 64, { each: true })
   @Matches(/[^\s]/, { each: true })
   names?: string[];
@@ -23,6 +25,7 @@ export class TagsLookupDto {
   @ArrayUnique()
   @ArrayMinSize(1)
   @ArrayMaxSize(32)
+  @IsString({ each: true })
   @Length(1, 64, { each: true })
   @Matches(/[^\s]/, { each: true })
   search?: string[];

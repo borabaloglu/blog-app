@@ -4,10 +4,10 @@ import {
   ArrayMinSize,
   ArrayUnique,
   IsDate,
-  IsEmail,
   IsEnum,
   IsInt,
   IsOptional,
+  IsString,
   Length,
   Matches,
   Min,
@@ -40,7 +40,7 @@ export class PostsLookupDto {
   @ArrayUnique()
   @ArrayMinSize(1)
   @ArrayMaxSize(32)
-  @IsEmail({}, { each: true })
+  @IsString({ each: true })
   @Length(1, 100, { each: true })
   slugs?: string[];
 
@@ -49,7 +49,7 @@ export class PostsLookupDto {
   @ArrayUnique()
   @ArrayMinSize(1)
   @ArrayMaxSize(32)
-  @IsEmail({}, { each: true })
+  @IsString({ each: true })
   @Length(1, 100, { each: true })
   titles?: string[];
 
@@ -58,6 +58,7 @@ export class PostsLookupDto {
   @ArrayUnique()
   @ArrayMinSize(1)
   @ArrayMaxSize(32)
+  @IsString({ each: true })
   @Length(1, 240, { each: true })
   @Matches(/[^\s]/, { each: true })
   subtitles?: string[];
@@ -67,6 +68,7 @@ export class PostsLookupDto {
   @ArrayUnique()
   @ArrayMinSize(1)
   @ArrayMaxSize(32)
+  @IsString({ each: true })
   @Length(1, 240, { each: true })
   @Matches(/[^\s]/, { each: true })
   contents?: string[];
@@ -76,6 +78,7 @@ export class PostsLookupDto {
   @ArrayUnique()
   @ArrayMinSize(1)
   @ArrayMaxSize(32)
+  @IsString({ each: true })
   @Length(1, 5, { each: true })
   @Matches(/[^\s]/, { each: true })
   languages?: string[];
@@ -91,6 +94,7 @@ export class PostsLookupDto {
   @ArrayUnique()
   @ArrayMinSize(1)
   @ArrayMaxSize(32)
+  @IsString({ each: true })
   @Length(1, 64, { each: true })
   @Matches(/[^\s]/, { each: true })
   tags?: string[];
