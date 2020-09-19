@@ -90,7 +90,7 @@ export class UsersController {
 
   @Post('/login')
   @HttpCode(200)
-  async login(@Body() dto: UsersLoginDto): Promise<string> {
+  async login(@Body() dto: UsersLoginDto): Promise<{ token: string }> {
     return this.usersService.login(dto);
   }
 

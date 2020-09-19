@@ -193,7 +193,7 @@ export class UsersService {
     };
   }
 
-  async login(dto: UsersLoginDto): Promise<string> {
+  async login(dto: UsersLoginDto): Promise<{ token: string }> {
     const user = await this.model.findOne({
       where: { email: dto.email },
       attributes: ['id', 'email', 'password', 'lastLoginDate'],
@@ -213,7 +213,10 @@ export class UsersService {
     const payload: UserAuthenticationPayload = {
       id: user.id,
     };
-    return this.jwtService.signAsync(payload);
+
+    return {
+      token: await this.jwtService.signAsync(payload),
+    };
   }
 
   async updateProfile(dto: UsersUpdateProfileDto): Promise<User> {
