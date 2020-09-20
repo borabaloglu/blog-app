@@ -42,3 +42,37 @@ $ create database blog
 $ create user blog_user with encrypted password 'blog_pass'
 $ grant all privileges on database blog to blog_user;
 ```
+
+## Running
+
+To run in development mode:
+
+```bash
+$ npm run start:dev
+```
+
+To run in production mode:
+
+```bash
+$ npm run start:prod
+```
+
+## Contribution
+
+To commit your changes, first run:
+
+```bash
+$ git add $FILES
+```
+
+Afterwards:
+
+```bash
+$ npm run commit
+```
+
+Fill the form, then:
+
+```bash
+$ git push origin master
+```
